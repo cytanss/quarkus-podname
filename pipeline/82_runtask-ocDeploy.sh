@@ -1,0 +1,1 @@
+tkn ct start openshift-client --param SCRIPT='oc new-app image-registry.openshift-image-registry.svc:5000/a-util/quarkus-podname ; oc expose svc/quarkus-podname' --showlog

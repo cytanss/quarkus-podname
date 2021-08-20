@@ -1,0 +1,1 @@
+oc create cm maven-settings --from-file=settings.xml=./configmap/maven-settings.xml

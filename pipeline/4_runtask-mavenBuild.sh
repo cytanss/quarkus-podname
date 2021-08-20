@@ -1,0 +1,1 @@
+tkn ct start maven --param GOALS='-DskipTests,clean,package' --workspace name=maven-settings,config=maven-settings --workspace name=source,claimName=working-pvc --showlog

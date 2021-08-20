@@ -1,0 +1,51 @@
+apiVersion: triggers.tekton.dev/v1alpha1
+kind: TriggerTemplate
+metadata:
+  name: quarkus-podname
+spec:
+  params:
+  - name: git-repo-url
+    description: The git repository url
+  - name: git-commit-id
+    description: The git commit id
+  - name: git-repo-name
+    description: The name of the deployment to be created / patched
+
+  resourcetemplates:
+  - apiVersion: tekton.dev/v1beta1
+    kind: PipelineRun
+    metadata:
+      name: quarkus-podname-cicd-$(uid)
+    spec:
+      serviceAccountName: pipeline
+      pipelineRef:
+        name: quarkus-podname-cicd
+      params:
+      - name: APP_NAME
+        value: $(tt.params.git-repo-name)
+      - name: GIT_REPO
+        value: $(tt.params.git-repo-url)
+#      - name: GIT_REVISION
+#        value: master
+#      - name: IMAGE_NAME
+#        value: image-registry.openshift-image-registry.svc:5000/dev/quarkus-podname
+#      - name: NAMESPACE
+#        value: dev
+#      - name: PATH_CONTEXT
+#        value: .
+      - name: GIT_COMMIT_ID
+        value: $(tt.params.git-commit-id)
+#      - name: QUAY_IMAGE_NAME
+#        value: quay.io/cytan/quarkus-podname
+      workspaces:
+      - name: workspace
+        volumeClaimTemplate:
+          spec:
+            accessModes:
+              - ReadWriteOnce
+            resources:
+              requests:
+                storage: 100Mi
+      - name: maven-settings
+        configMap:
+          name: maven-settings

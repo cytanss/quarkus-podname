@@ -1,0 +1,174 @@
+apiVersion: tekton.dev/v1beta1
+kind: Pipeline
+metadata:
+  name: quarkus-podname-cicd
+spec:
+  description: >-
+    The Pipline to buld and deploy the Quarkus Podname Java App.
+  params:
+    - name: APP_NAME
+      type: string
+      default: quarkus-podname
+    - name: GIT_REPO
+      type: string
+      default: http://gitea.apps.cluster-daea.daea.sandbox1287.opentlc.com/mpua/quarkus-podname.git
+    - name: GIT_REVISION
+      type: string
+      default: master
+    - name: IMAGE_NAME
+      type: string
+      default: image-registry.openshift-image-registry.svc:5000/quarkus-sit/quarkus-podname
+    - name: QUAY_IMAGE_NAME
+      type: string
+      default: quay.io/mpua/quarkus-podname
+#    - default: .
+#      name: PATH_CONTEXT
+#      type: string
+    - name: NAMESPACE
+      type: string
+      default: quarkus-sit
+    - name: GIT_COMMIT_ID
+      type: string
+      default: manual
+    - name: KUSTOMIZE_BASE_DIR
+      type: string
+      default: pipeline/app/base
+    - name: GIT_DEPLOY_REPO
+      type: string
+      default: http://gitea.apps.cluster-daea.daea.sandbox1287.opentlc.com/mpua/quarkus-podname-deploy.git
+    - name: GIT_DEPLOY_USERNAME
+      type: string
+      default: mpua
+    - name: GIT_DEPLOY_PASSWORD
+      type: string
+      default: 'r3dh4t1!'
+  workspaces:
+    - name: workspace 
+    - name: maven-settings 
+  tasks:
+    - name: fetch-repository
+      taskRef:
+        name: git-clone
+        kind: ClusterTask
+      params:
+        - name: url
+          value: $(params.GIT_REPO)
+        - name: revision
+          value: $(params.GIT_REVISION)
+#        - name: subdirectory
+#          value: ''
+        - name: deleteExisting
+          value: 'true'
+      workspaces:
+        - name: output
+          workspace: workspace
+    - name: package
+      taskRef:
+        name: maven
+        kind: ClusterTask
+      runAfter:
+        - fetch-repository
+      params:
+        - name: GOALS
+          value: ['clean', 'package']
+      workspaces:
+        - name: maven-settings
+          workspace: maven-settings
+        - name: source
+          workspace: workspace
+#    - name: unit-test
+#      taskRef:
+#        name: maven
+#        kind: ClusterTask
+#      runAfter:
+#        - package
+#      params:
+#        - name: GOALS
+#          value: ['test']
+#      workspaces:
+#        - name: maven-settings
+#          workspace: maven-settings
+#        - name: source
+#          workspace: workspace
+    - name: build-image
+      taskRef:
+        name: buildah
+        kind: ClusterTask
+      runAfter:
+#        - unit-test
+        - package
+      params:
+        - name: IMAGE
+          value: '$(params.IMAGE_NAME):$(params.GIT_COMMIT_ID)'
+        - name: TLSVERIFY
+          value: 'false'
+        - name: DOCKERFILE
+          value: './src/main/docker/Dockerfile.jvm'
+      workspaces:
+        - name: source
+          workspace: workspace
+    - name: deploy-sit
+      taskRef:
+        name: deploy-app
+        kind: Task
+      runAfter:
+        - build-image
+      params:
+        - name: DEPLOYMENT_NAME
+          value: '$(params.APP_NAME)'
+        - name: CURRENT_IMAGE
+          value: '$(params.IMAGE_NAME)'
+#        - name: NEW_IMAGE_NAME
+#          value: '$(params.IMAGE_NAME)'
+#        - name: NEW_IMAGE_TAG
+#          value: "latest"
+#        - name: NEW_IMAGE_DIGEST
+#          value: $(tasks.build-image.results.IMAGE_DIGEST)
+        - name: NAMESPACE
+          value: '$(params.NAMESPACE)'
+        - name: KUSTOMIZE_BASE_DIR
+          value: '$(params.KUSTOMIZE_BASE_DIR)'
+        - name: GIT_COMMIT_ID
+          value: '$(params.GIT_COMMIT_ID)'
+      workspaces:
+        - name: source
+          workspace: workspace
+    - name: copy-image-to-quay
+      taskRef:
+        name: my-skopeo-copy
+        kind: Task
+      runAfter:
+        - deploy-sit
+      params:
+        - name: srcImageURL
+          value: '$(params.IMAGE_NAME):$(params.GIT_COMMIT_ID)'
+        - name: destImageURL
+          value: '$(params.QUAY_IMAGE_NAME):$(params.GIT_COMMIT_ID)'
+        - name: srcTLSverify
+          value: 'false'
+        - name: destTLSverify
+          value: "false"
+    - name: trigger-gitops
+      taskRef:
+        name: git-update-deployment
+        kind: Task
+      runAfter:
+        - copy-image-to-quay
+      params:
+        - name: GIT_REPOSITORY
+          value: '$(params.GIT_DEPLOY_REPO)'
+        - name: GIT_USERNAME
+          value: '$(params.GIT_DEPLOY_USERNAME)'
+        - name: GIT_PASSWORD
+          value: '$(params.GIT_DEPLOY_PASSWORD)'
+        - name: CURRENT_IMAGE
+          value: 'quay.io/cytan/quarkus-podname:latest'
+        - name: NEW_IMAGE
+          value: '$(params.QUAY_IMAGE_NAME)'
+        - name: GIT_COMMIT_ID
+          value: '$(params.GIT_COMMIT_ID)'
+        - name: KUSTOMIZATION_PATH
+          value: 'base'
+      workspaces:
+        - name: workspace
+          workspace: workspace          

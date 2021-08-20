@@ -1,0 +1,1 @@
+tkn task start list-directory --param sub-dirs='target' --workspace name=directory,claimName=working-pvc --showlog

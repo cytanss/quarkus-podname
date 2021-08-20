@@ -1,0 +1,1 @@
+tkn ct start s2i-java-11 --param IMAGE='image-registry.openshift-image-registry.svc:5000/a-util/quarkus-podname-s2i' --param MAVEN_MIRROR_URL='http://nexus3:8081/repository/maven-public/' --param TLSVERIFY='false' --workspace name=source,claimName=working-pvc --showlog

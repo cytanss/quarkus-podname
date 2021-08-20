@@ -1,0 +1,44 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: quarkus-podname
+    app.openshift.io/runtime: quarkus
+  name: quarkus-podname
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: quarkus-podname
+  template:
+    metadata:
+      labels:
+        app: quarkus-podname
+    spec:
+      containers:
+      - name: quarkus-podname
+        imagePullPolicy: IfNotPresent
+        image: quay.io/cytan/quarkus-podname:latest
+        livenessProbe:
+          failureThreshold: 3
+          httpGet:
+            path: /
+            port: 8080
+            scheme: HTTP
+          initialDelaySeconds: 5
+          periodSeconds: 5
+          successThreshold: 1
+          timeoutSeconds: 1
+        ports:
+        - containerPort: 8080
+          protocol: TCP
+        readinessProbe:
+          failureThreshold: 3
+          httpGet:
+            path: /
+            port: 8080
+            scheme: HTTP
+          initialDelaySeconds: 5
+          periodSeconds: 5
+          successThreshold: 1
+          timeoutSeconds: 5

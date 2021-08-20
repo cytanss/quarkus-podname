@@ -1,0 +1,11 @@
+apiVersion: triggers.tekton.dev/v1alpha1
+kind: EventListener
+metadata:
+  name: quarkus-podname-el
+spec:
+  serviceAccountName: pipeline
+  triggers:
+  - bindings:
+    - ref: quarkus-podname
+    template:
+      ref: quarkus-podname

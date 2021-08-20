@@ -1,0 +1,1 @@
+tkn ct start openshift-client --inputresource='source=git-resource'  --param SCRIPT='oc apply -f source/pipeline/app' --showlog
