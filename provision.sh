@@ -44,6 +44,7 @@ function deploy() {
   oc apply -f pipeline/configmap/maven-config.yaml
   oc apply -f pipeline/pvc/working-pvc.yaml
   
+  echo
   echo_header "Manual setup your quay secret to push images..."
 
   #Setup tasks and pipeline
@@ -63,7 +64,9 @@ function deploy() {
 
   oc apply -f pipeline/tasks/
   oc apply -f pipeline/pipelines/quarkus-podname-cicd.yaml
-  
+  oc apply -f pipeline/triggers/
+  sleep 5
+  oc expose svc el-quarkus-podname-el
 
 exit 0
 
