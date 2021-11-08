@@ -16,7 +16,7 @@
     <mirror>
       <id>nexus</id>
       <mirrorOf>*</mirrorOf>
-      <url>http://nexus3.cicd-util.svc:8081/repository/maven-public/</url>
+      <url>http://nexus3.cicd-utils.svc:8081/repository/maven-public/</url>
     </mirror>
   </mirrors>
   <profiles>
