@@ -36,8 +36,8 @@ spec:
       description: Verify the TLS on the dest registry endpoint
       name: destTLSverify
       type: string
-    - default: '11009103-mingfei.pua-pull-secret'
-      description: secrets name to push to quay
+    - default: 'cytan-pull-secret'
+      description: secrets name to push image to quay
       name: quay-secret
       type: string
   volumes:

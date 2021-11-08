@@ -11,7 +11,7 @@ spec:
       default: quarkus-podname
     - name: GIT_REPO
       type: string
-      default: http://gitea.apps.cluster-daea.daea.sandbox1287.opentlc.com/mpua/quarkus-podname.git
+      default: http://gitea.apps.cluster-rdt76.rdt76.sandbox1320.opentlc.com/cytan/quarkus-podname.git
     - name: GIT_REVISION
       type: string
       default: master
@@ -20,10 +20,11 @@ spec:
       default: image-registry.openshift-image-registry.svc:5000/quarkus-sit/quarkus-podname
     - name: QUAY_IMAGE_NAME
       type: string
-      default: quay.io/mpua/quarkus-podname
-#    - default: .
-#      name: PATH_CONTEXT
-#      type: string
+      default: quay.io/cytan/quarkus-podname
+    - name: QUAY_SECRET_NAME
+      type: string
+      default: 'cytan-pull-secret'
+      description: secrets name to push image to quay
     - name: NAMESPACE
       type: string
       default: quarkus-sit
@@ -35,13 +36,13 @@ spec:
       default: pipeline/app/base
     - name: GIT_DEPLOY_REPO
       type: string
-      default: http://gitea.apps.cluster-daea.daea.sandbox1287.opentlc.com/mpua/quarkus-podname-deploy.git
+      default: http://gitea.apps.cluster-rdt76.rdt76.sandbox1320.opentlc.com/cytan/quarkus-podname-deploy.git
     - name: GIT_DEPLOY_USERNAME
       type: string
-      default: mpua
+      default: cytan
     - name: GIT_DEPLOY_PASSWORD
       type: string
-      default: 'r3dh4t1!'
+      default: 'admin123'
   workspaces:
     - name: workspace 
     - name: maven-settings 
@@ -148,6 +149,8 @@ spec:
           value: 'false'
         - name: destTLSverify
           value: "false"
+        - name: quay-secret
+          value: '$(params.QUAY_SECRET_NAME)'       
     - name: trigger-gitops
       taskRef:
         name: git-update-deployment

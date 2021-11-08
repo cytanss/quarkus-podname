@@ -43,6 +43,8 @@ function deploy() {
   oc new-project quarkus-sit
   oc apply -f pipeline/configmap/maven-config.yaml
   oc apply -f pipeline/pvc/working-pvc.yaml
+  
+  echo_header "Manual setup your quay secret to push images..."
 
   #Setup tasks and pipeline
   read -p "Press Enter Y to confirm to proceed setup tasks and pipeline? " CONFIRMED
