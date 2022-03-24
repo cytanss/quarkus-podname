@@ -48,3 +48,5 @@ If you want to learn more about building native executables, please consult http
 ## OpenShift Pipelines & GitOps
 
 ![](images/cicd.png)
+
+Demo Video: https://youtu.be/qJZQwd34yMI
