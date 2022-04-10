@@ -67,8 +67,7 @@ function deploy() {
   oc apply -f pipeline/triggers/
   sleep 10
   oc expose svc el-quarkus-podname-el
-
-exit 0
+}
 
 #echo "function echo_header"
 function echo_header() {
