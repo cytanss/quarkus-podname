@@ -17,7 +17,7 @@ public class PodNameResource {
     @Path("/")
     @Produces(MediaType.TEXT_PLAIN)
     public String getPodName() throws UnknownHostException{
-        return "Mamamia! from " + InetAddress.getLocalHost().getHostName();
+        return "Hello Customer! from " + InetAddress.getLocalHost().getHostName();
     }
 
 

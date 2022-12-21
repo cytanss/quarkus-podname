@@ -1,4 +1,8 @@
 # quarkus-podname project
+Note: Tested against OpenShift 4.11.18
+- application (Yes)
+- pipeline (No)
+- gitops (No)
 
 This project uses Quarkus, the Supersonic Subatomic Java Framework.
 
